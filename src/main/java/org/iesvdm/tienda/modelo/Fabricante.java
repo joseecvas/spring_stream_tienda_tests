@@ -1,5 +1,6 @@
 package org.iesvdm.tienda.modelo;
 
+import java.util.Iterator;
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -8,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
 import lombok.ToString;
+import org.iesvdm.tienda.repository.ProductoRepository;
 
 @Entity
 @Data
@@ -21,5 +23,4 @@ public class Fabricante {
     @OneToMany(mappedBy = "fabricante", fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Producto> productos;
-
 }

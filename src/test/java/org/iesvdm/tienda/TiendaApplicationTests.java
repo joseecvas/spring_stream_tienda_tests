@@ -1,5 +1,6 @@
 package org.iesvdm.tienda;
 
+import jakarta.persistence.EntityManager;
 import org.iesvdm.tienda.modelo.Fabricante;
 import org.iesvdm.tienda.modelo.Producto;
 import org.iesvdm.tienda.repository.FabricanteRepository;
@@ -7,67 +8,90 @@ import org.iesvdm.tienda.repository.ProductoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Iterator;
 import java.util.List;
 
 
 @SpringBootTest
 class TiendaApplicationTests {
-
 	@Autowired
 	FabricanteRepository fabRepo;
-	
+
 	@Autowired
 	ProductoRepository prodRepo;
 
 	@Test
 	void testAllFabricante() {
 		var listFabs = fabRepo.findAll();
-		
+
 		listFabs.forEach(f -> {
-			System.out.println(">>"+f+ ":");
+			System.out.println(">>" + f + ":");
 			f.getProductos().forEach(System.out::println);
 		});
 	}
-	
+
 	@Test
 	void testAllProducto() {
 		var listProds = prodRepo.findAll();
 
-		listProds.forEach( p -> {
-			System.out.println(">>"+p+":"+"\nProductos mismo fabricante "+ p.getFabricante());
-			p.getFabricante().getProductos().forEach(pF -> System.out.println(">>>>"+pF));
+		listProds.forEach(p -> {
+			System.out.println(">>" + p + ":" + "\nProductos mismo fabricante " + p.getFabricante());
+			p.getFabricante().getProductos().forEach(pF -> System.out.println(">>>>" + pF));
 		});
-				
 	}
 
-	
+
 	/**
 	 * 1. Lista los nombres y los precios de todos los productos de la tabla producto
 	 */
 	@Test
 	void test1() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var listNomPrec = listProds.stream()
+				.map(p -> p.getNombre() + " , " + p.getPrecio())
+				.toList();
+		listNomPrec.forEach(System.out::println);
 	}
-	
-	
+
 	/**
 	 * 2. Devuelve una lista de Producto completa con el precio de euros convertido a dólares .
 	 */
 	@Test
 	void test2() {
-		var listProds = prodRepo.findAll();
-		//TODO
+		var listProdsPrecEuro = prodRepo.findAll();
+		var listPrecDolar = listProdsPrecEuro.stream().
+				map(p -> {
+					Producto pDolar = new Producto();
+					pDolar.setCodigo(p.getCodigo());
+					pDolar.setNombre(p.getNombre());
+					pDolar.setPrecio(p.getPrecio() * 1.08);
+					pDolar.setFabricante(p.getFabricante());
+					return pDolar;
+				})
+				.toList();
+		listPrecDolar.forEach(System.out::println);
 	}
-	
+
+	void test2_v2_alterando_objetos_coleccion() {
+		var listProdsPrecEuro = prodRepo.findAll();
+		listProdsPrecEuro.forEach(Producto::eurToDol);
+		listProdsPrecEuro.forEach(System.out::println);
+	}
+
 	/**
 	 * 3. Lista los nombres y los precios de todos los productos, convirtiendo los nombres a mayúscula.
 	 */
 	@Test
 	void test3() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var listProdsNomMayus = listProds.stream()
+				.map(p -> p.getNombre().toUpperCase())
+				.toList();
+		listProdsNomMayus.forEach(System.out::println);
 	}
+	//record NomPrec (String nnombre, double predio){
+	//listProds.stream().map(p-> new NomPrec(p.getNombre().toUpperCase(), p.getPrecio()))
 	
 	/**
 	 * 4. Lista el nombre de todos los fabricantes y a continuación en mayúsculas los dos primeros caracteres del nombre del fabricante.
@@ -75,7 +99,9 @@ class TiendaApplicationTests {
 	@Test
 	void test4() {
 		var listFabs = fabRepo.findAll();
-		//TODO
+		var listFabsDC = listFabs.stream().map(f -> f.getNombre() + " - " + f.getNombre().substring(0, 2).toUpperCase())
+				.toList();
+		listFabsDC.forEach(System.out::println);
 	}
 	
 	/**
@@ -84,7 +110,8 @@ class TiendaApplicationTests {
 	@Test
 	void test5() {
 		var listFabs = fabRepo.findAll();
-		//TODO		
+		Iterator it = listFabs.iterator();
+		//listFabs.stream().map(f->f.getCodigo()).filter();
 	}
 	
 	/**

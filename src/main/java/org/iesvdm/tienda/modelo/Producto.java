@@ -22,5 +22,9 @@ public class Producto {
     @ManyToOne
     @JoinColumn(name = "codigo_fabricante", referencedColumnName = "codigo")
     private Fabricante fabricante;
-
+    public static final double FACTOR_EUR_DOL=1.08;
+    public static Producto eurToDol(Producto p){
+        p.setPrecio(FACTOR_EUR_DOL);
+        return p;
+    }
 }    
