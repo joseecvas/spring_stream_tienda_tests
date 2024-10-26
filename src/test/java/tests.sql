@@ -52,3 +52,11 @@ select nombre from producto join fabricante where producto.codigo_fabricante = 2
 	 * 13. Lista el nombre de los productos que tienen un precio menor o igual a 120€.
 	 */
 select nombre from producto where precio <=120;
+/**
+	 * 14. Lista los productos que tienen un precio mayor o igual a 400€.
+	 */
+select * from producto where precio >=400;
+/**
+	 * 15. Lista todos los productos que tengan un precio entre 80€ y 300€.
+	 */
+select * from producto where precio between 80 and 300;
