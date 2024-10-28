@@ -10,11 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Comparator.comparing;
+import static java.util.Comparator.reverseOrder;
 
 
 @SpringBootTest
@@ -126,7 +125,6 @@ class TiendaApplicationTests {
 	@Test
 	void test6() {
 		var listFabs = fabRepo.findAll();
-		//TODO
 		var result = listFabs.stream().
 		sorted(comparing(Fabricante::getNombre).reversed()).
 				toList();
@@ -138,7 +136,6 @@ class TiendaApplicationTests {
 	@Test
 	void test7() {
 		var listProds = prodRepo.findAll();
-		//TODO
 		var result = listProds.stream().sorted(comparing(Producto::getNombre)
 						.thenComparing(comparing(Producto::getPrecio, Comparator.reverseOrder()))).toList();
 		result.forEach(System.out::println);
@@ -152,7 +149,6 @@ class TiendaApplicationTests {
 	@Test
 	void test8() {
 		var listFabs = fabRepo.findAll();
-		//TODO
 		var result = listFabs.stream()
 				.limit(5)
 				.toList();
@@ -165,7 +161,6 @@ class TiendaApplicationTests {
 	@Test
 	void test9() {
 		var listFabs = fabRepo.findAll();
-		//TODO
 		var result = listFabs.stream()
 				.skip(3)
 				.limit(2)
@@ -179,7 +174,6 @@ class TiendaApplicationTests {
 	@Test
 	void test10() {
 		var listProds = prodRepo.findAll();
-		//TODO
 		var result = listProds.stream()
 				.sorted(comparing(Producto::getPrecio))
 				.map(p->p.getNombre()+p.getPrecio())
@@ -193,7 +187,6 @@ class TiendaApplicationTests {
 	@Test
 	void test11() {
 		var listProds = prodRepo.findAll();
-		//TODO
 		listProds.stream()
 				.max(comparing(Producto::getPrecio))
 				.ifPresentOrElse(p -> System.out.println(p.getNombre() + "," + p.getPrecio()),
@@ -264,7 +257,14 @@ class TiendaApplicationTests {
 	@Test
 	void test17() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		Set<Integer> fabricantesSet = new HashSet<>();
+		fabricantesSet.add(1);
+		fabricantesSet.add(3);
+		fabricantesSet.add(5);
+		fabricantesSet.add(7);
+		listProds.stream()
+				.filter(p->fabricantesSet.contains(p.getFabricante().getCodigo()))
+				.forEach(System.out::println);
 	}
 	
 	/**
@@ -273,26 +273,30 @@ class TiendaApplicationTests {
 	@Test
 	void test18() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		listProds.stream()
+				.map(p-> p.getNombre() + p.getPrecio()*100)
+				.forEach(System.out::println);
 	}
-	
-	
 	/**
 	 * 19. Lista los nombres de los fabricantes cuyo nombre empiece por la letra S
 	 */
 	@Test
 	void test19() {
 		var listFabs = fabRepo.findAll();
-		//TODOS
+		listFabs.stream()
+				.filter(f-> f.getNombre().substring(0).equals("S"))
+				.map(Fabricante::getNombre)
+				.forEach(System.out::println);
 	}
-	
 	/**
 	 * 20. Devuelve una lista con los productos que contienen la cadena Portátil en el nombre.
 	 */
 	@Test
 	void test20() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		listProds.stream()
+				.filter(p-> p.getNombre().contains("Portátil"))
+				.forEach(System.out::println);
 	}
 	
 	/**
@@ -301,7 +305,9 @@ class TiendaApplicationTests {
 	@Test
 	void test21() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		listProds.stream()
+				.filter(p-> p.getNombre().contains("Monitor") && p.getPrecio()<215)
+				.forEach(System.out::println);
 	}
 	
 	/**
@@ -310,7 +316,12 @@ class TiendaApplicationTests {
 	 */
 	void test22() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		listProds.stream()
+				.filter(p -> p.getPrecio() >= 180)
+				.sorted(comparing(Producto::getPrecio, reverseOrder())
+						.thenComparing(Producto::getNombre))
+				.map(p-> p.getNombre() + p.getPrecio())
+				.forEach(System.out::println);
 	}
 	
 	/**
@@ -320,7 +331,11 @@ class TiendaApplicationTests {
 	@Test
 	void test23() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		listProds.stream()
+				.sorted(comparing(p -> p.getFabricante().getNombre()))
+				.map(p -> p.getNombre() + ", " + p.getPrecio() +  ", " + p.getFabricante().getNombre())
+				.forEach(System.out::println);
+
 	}
 	
 	/**
@@ -329,7 +344,10 @@ class TiendaApplicationTests {
 	@Test
 	void test24() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		listProds.stream()
+				.max(comparing(Producto::getPrecio))
+				.map(p -> p.getNombre() + p.getPrecio() + p.getFabricante().getNombre())
+				.ifPresentOrElse((System.out::println), () -> System.out.println("Cadena vacía"));
 	}
 	
 	/**
@@ -338,7 +356,9 @@ class TiendaApplicationTests {
 	@Test
 	void test25() {
 		var listProds = prodRepo.findAll();
-		//TODO	
+		listProds.stream()
+				.filter(p -> p.getFabricante().getNombre().equals("Crucial") && p.getPrecio()>200)
+				.forEach(System.out::println);
 	}
 	
 	/**
@@ -347,7 +367,13 @@ class TiendaApplicationTests {
 	@Test
 	void test26() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		Set<String> setFabricante = new HashSet<>();
+		setFabricante.add("Asus");
+		setFabricante.add("Hewlett-Packard");
+		setFabricante.add("Seagate");
+		listProds.stream()
+				.filter(p->setFabricante.contains(p.getFabricante().getNombre()))
+				.forEach(System.out::println);
 	}
 	
 	/**
@@ -363,11 +389,17 @@ Portátil Yoga 520      |452.79            |Lenovo
 Portátil Ideapd 320    |359.64000000000004|Lenovo
 Monitor 27 LED Full HD |199.25190000000003|Asus
 
-	 */		
+	 */
 	@Test
 	void test27() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		var listProdsMayor180 = listProds.stream()
+				.filter(p -> p.getPrecio() >= 180)
+				.map(p -> p.getNombre() + "/" + p.getPrecio() + "/" + p.getFabricante().getNombre())
+				.toList();
+		System.out.println("Producto\tPrecio\tFabricante");
+		System.out.println("\n-----------------------------------------------------");
+		listProdsMayor180.forEach(System.out::println);
 	}
 	
 	/**
