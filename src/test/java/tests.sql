@@ -1,3 +1,5 @@
+-- 9
+SELECT * FROM fabricante limit 2 offset 3;
 
 /**
 	 * 1. Lista los nombres y los precios de todos los productos de la tabla producto
@@ -18,7 +20,7 @@ select nombre, UPPER(SUBSTRING(nombre, 1, 3)) from fabricante;
 /**
 	 * 5. Lista el código de los fabricantes que tienen productos.
 	 */
-select codigo from fabricante join producto where producto.codigo_fabricante = fabricante.codigo;
+select codigo from fabricante join producto on producto.codigo_fabricante = fabricante.codigo;
 /**
 	 * 6. Lista los nombres de los fabricantes ordenados de forma descendente.
 	 */
@@ -47,7 +49,7 @@ select nombre, max(precio) from producto;
 	 * 12. Lista el nombre de todos los productos del fabricante cuyo código de fabricante es igual a 2.
 	 *
 	 */
-select nombre from producto join fabricante where producto.codigo_fabricante = 2;
+select p.nombre from producto p where p.codigo_fabricante = 2;
 /**
 	 * 13. Lista el nombre de los productos que tienen un precio menor o igual a 120€.
 	 */

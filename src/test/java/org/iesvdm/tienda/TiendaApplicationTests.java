@@ -5,12 +5,16 @@ import org.iesvdm.tienda.modelo.Fabricante;
 import org.iesvdm.tienda.modelo.Producto;
 import org.iesvdm.tienda.repository.FabricanteRepository;
 import org.iesvdm.tienda.repository.ProductoRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
+import static java.util.Comparator.comparing;
 
 
 @SpringBootTest
@@ -110,8 +114,10 @@ class TiendaApplicationTests {
 	@Test
 	void test5() {
 		var listFabs = fabRepo.findAll();
-		Iterator it = listFabs.iterator();
-		//listFabs.stream().map(f->f.getCodigo()).filter();
+		var result = listFabs.stream()
+				.filter(f->!f.getProductos().isEmpty())
+				.toList();
+		result.forEach(System.out::println);
 	}
 	
 	/**
@@ -121,8 +127,11 @@ class TiendaApplicationTests {
 	void test6() {
 		var listFabs = fabRepo.findAll();
 		//TODO
+		var result = listFabs.stream().
+		sorted(comparing(Fabricante::getNombre).reversed()).
+				toList();
+		result.forEach(System.out::println);
 	}
-	
 	/**
 	 * 7. Lista los nombres de los productos ordenados en primer lugar por el nombre de forma ascendente y en segundo lugar por el precio de forma descendente.
 	 */
@@ -130,6 +139,11 @@ class TiendaApplicationTests {
 	void test7() {
 		var listProds = prodRepo.findAll();
 		//TODO
+		var result = listProds.stream().sorted(comparing(Producto::getNombre)
+						.thenComparing(comparing(Producto::getPrecio, Comparator.reverseOrder()))).toList();
+		result.forEach(System.out::println);
+
+
 	}
 	
 	/**
@@ -139,6 +153,10 @@ class TiendaApplicationTests {
 	void test8() {
 		var listFabs = fabRepo.findAll();
 		//TODO
+		var result = listFabs.stream()
+				.limit(5)
+				.toList();
+		result.forEach(System.out::println);
 	}
 	
 	/**
@@ -147,7 +165,12 @@ class TiendaApplicationTests {
 	@Test
 	void test9() {
 		var listFabs = fabRepo.findAll();
-		//TODO		
+		//TODO
+		var result = listFabs.stream()
+				.skip(3)
+				.limit(2)
+				.toList();
+		result.forEach(System.out::println);
 	}
 	
 	/**
@@ -157,6 +180,11 @@ class TiendaApplicationTests {
 	void test10() {
 		var listProds = prodRepo.findAll();
 		//TODO
+		var result = listProds.stream()
+				.sorted(comparing(Producto::getPrecio))
+				.map(p->p.getNombre()+p.getPrecio())
+				.findAny();
+		Assertions.assertTrue(result.orElse("").contains("59.99"));
 	}
 	
 	/**
@@ -166,6 +194,10 @@ class TiendaApplicationTests {
 	void test11() {
 		var listProds = prodRepo.findAll();
 		//TODO
+		listProds.stream()
+				.max(comparing(Producto::getPrecio))
+				.ifPresentOrElse(p -> System.out.println(p.getNombre() + "," + p.getPrecio()),
+						()-> System.out.println("Colección vacía"));
 	}
 	
 	/**
@@ -175,7 +207,10 @@ class TiendaApplicationTests {
 	@Test
 	void test12() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		listProds.stream()
+				.filter(p->p.getFabricante().getCodigo() == 2)
+				.map(Producto::getNombre)
+				.forEach(System.out::println);
 	}
 	
 	/**
@@ -184,7 +219,10 @@ class TiendaApplicationTests {
 	@Test
 	void test13() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		listProds.stream()
+				.filter(p->p.getPrecio()<=120)
+				.map(Producto::getNombre)
+				.forEach(System.out::println);
 	}
 	
 	/**
@@ -193,7 +231,9 @@ class TiendaApplicationTests {
 	@Test
 	void test14() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		listProds.stream()
+				.filter(p->p.getPrecio()>=400)
+				.forEach(System.out::println);
 	}
 	
 	/**
@@ -202,7 +242,9 @@ class TiendaApplicationTests {
 	@Test
 	void test15() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		listProds.stream()
+				.filter(p->p.getPrecio()>=80 && p.getPrecio()<=300)
+				.forEach(System.out::println);
 	}
 	
 	/**
@@ -211,7 +253,9 @@ class TiendaApplicationTests {
 	@Test
 	void test16() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		listProds.stream()
+				.filter(p->p.getPrecio()>200 && p.getFabricante().getCodigo() == 6)
+				.forEach(System.out::println);
 	}
 	
 	/**
