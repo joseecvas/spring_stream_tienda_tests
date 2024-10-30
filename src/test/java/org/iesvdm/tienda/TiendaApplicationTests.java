@@ -52,10 +52,13 @@ class TiendaApplicationTests {
 	@Test
 	void test1() {
 		var listProds = prodRepo.findAll();
+		record NomPrec (String nombre, double precio){}
 		var listNomPrec = listProds.stream()
-				.map(p -> p.getNombre() + " , " + p.getPrecio())
+		.map(p-> new NomPrec(p.getNombre(), p.getPrecio()))
 				.toList();
-		listNomPrec.forEach(System.out::println);
+		Assertions.assertEquals(listNomPrec.size(), 11);
+		Assertions.assertEquals("Disco duro SATA3 1TB", listNomPrec.get(0).nombre);
+		Assertions.assertEquals(86.99, listNomPrec.get(0).precio);
 	}
 
 	/**
@@ -74,7 +77,8 @@ class TiendaApplicationTests {
 					return pDolar;
 				})
 				.toList();
-		listPrecDolar.forEach(System.out::println);
+		Assertions.assertEquals(11, listPrecDolar.size());
+		Assertions.assertEquals(86.99*1.08, listPrecDolar.get(0).getPrecio());
 	}
 
 	void test2_v2_alterando_objetos_coleccion() {
@@ -89,13 +93,15 @@ class TiendaApplicationTests {
 	@Test
 	void test3() {
 		var listProds = prodRepo.findAll();
+		record NomPrec (String nombre, double precio){}
 		var listProdsNomMayus = listProds.stream()
-				.map(p -> p.getNombre().toUpperCase())
+				.map(p -> new NomPrec(p.getNombre().toUpperCase(), p.getPrecio()))
 				.toList();
 		listProdsNomMayus.forEach(System.out::println);
+		Assertions.assertEquals(11, listProdsNomMayus.size());
+		Assertions.assertEquals("Disco duro SATA3 1TB".toUpperCase(), listProdsNomMayus.get(0).nombre);
+		Assertions.assertEquals("Impresora HP Laserjet Pro M26nw".toUpperCase(), listProdsNomMayus.get(10).nombre);
 	}
-	//record NomPrec (String nnombre, double predio){
-	//listProds.stream().map(p-> new NomPrec(p.getNombre().toUpperCase(), p.getPrecio()))
 	
 	/**
 	 * 4. Lista el nombre de todos los fabricantes y a continuación en mayúsculas los dos primeros caracteres del nombre del fabricante.
@@ -103,9 +109,13 @@ class TiendaApplicationTests {
 	@Test
 	void test4() {
 		var listFabs = fabRepo.findAll();
-		var listFabsDC = listFabs.stream().map(f -> f.getNombre() + " - " + f.getNombre().substring(0, 2).toUpperCase())
+		record NomPref (String nombre, String prefijo){}
+		var listFabsDC = listFabs.stream().map(f -> new NomPref(f.getNombre(),f.getNombre().substring(0, 2).toUpperCase()))
 				.toList();
 		listFabsDC.forEach(System.out::println);
+		Assertions.assertEquals(9, listFabsDC.size());
+		Assertions.assertEquals("Asus", listFabsDC.get(0).nombre);
+		Assertions.assertEquals("AS", listFabsDC.get(0).prefijo);
 	}
 	
 	/**
@@ -116,8 +126,12 @@ class TiendaApplicationTests {
 		var listFabs = fabRepo.findAll();
 		var result = listFabs.stream()
 				.filter(f->!f.getProductos().isEmpty())
+				.map(Fabricante::getCodigo)
 				.toList();
 		result.forEach(System.out::println);
+		Assertions.assertEquals(7, result.size());
+		Assertions.assertEquals(1, result.get(0));
+		Assertions.assertEquals(7, result.get(6));
 	}
 	
 	/**
@@ -127,9 +141,15 @@ class TiendaApplicationTests {
 	void test6() {
 		var listFabs = fabRepo.findAll();
 		var result = listFabs.stream().
-		sorted(comparing(Fabricante::getNombre).reversed()).
-				toList();
+		sorted(comparing(Fabricante::getNombre,reverseOrder()))
+				.map(Fabricante::getNombre)
+				.toList();
 		result.forEach(System.out::println);
+		Assertions.assertEquals(9, result.size());
+		Assertions.assertEquals("Xiaomi", result.get(0));
+		Assertions.assertEquals("Asus", result.get(8));
+
+
 	}
 	/**
 	 * 7. Lista los nombres de los productos ordenados en primer lugar por el nombre de forma ascendente y en segundo lugar por el precio de forma descendente.
@@ -138,13 +158,16 @@ class TiendaApplicationTests {
 	void test7() {
 		var listProds = prodRepo.findAll();
 		var result = listProds.stream().sorted(comparing(Producto::getNombre)
-						.thenComparing(comparing(Producto::getPrecio, Comparator.reverseOrder()))).toList();
+						.thenComparing(comparing(Producto::getPrecio, Comparator.reverseOrder())))
+				.map(p -> p.getNombre())
+				.toList();
 		result.forEach(System.out::println);
-
-
+		Assertions.assertEquals(11, result.size());
+		Assertions.assertEquals("Disco duro SATA3 1TB", result.get(0));
+		Assertions.assertEquals("Impresora HP Laserjet Pro M26nw", result.get(10));
 	}
 	
-	/**
+	/*
 	 * 8. Devuelve una lista con los 5 primeros fabricantes.
 	 */
 	@Test
@@ -154,6 +177,9 @@ class TiendaApplicationTests {
 				.limit(5)
 				.toList();
 		result.forEach(System.out::println);
+		Assertions.assertEquals(5, result.size());
+		Assertions.assertEquals("Asus", result.get(0).getNombre());
+		Assertions.assertEquals("Seagate", result.get(4).getNombre());
 	}
 	
 	/**
@@ -167,6 +193,9 @@ class TiendaApplicationTests {
 				.limit(2)
 				.toList();
 		result.forEach(System.out::println);
+		Assertions.assertEquals(2, result.size());
+		Assertions.assertEquals("Samsung", result.get(0).getNombre());
+		Assertions.assertEquals("Seagate", result.get(1).getNombre());
 	}
 	
 	/**
@@ -201,10 +230,14 @@ class TiendaApplicationTests {
 	@Test
 	void test12() {
 		var listProds = prodRepo.findAll();
-		listProds.stream()
+		record NomFab(String nombre, int cod_fabricante){}
+		var prodFab2 = listProds.stream()
 				.filter(p->p.getFabricante().getCodigo() == 2)
-				.map(Producto::getNombre)
-				.forEach(System.out::println);
+				.map(p -> new NomFab(p.getNombre(), p.getFabricante().getCodigo()))
+				.toList();
+		Assertions.assertEquals(2, prodFab2.size());
+		Assertions.assertEquals(2, prodFab2.get(0).cod_fabricante);
+		Assertions.assertEquals(2, prodFab2.get(1).cod_fabricante);
 	}
 	
 	/**
@@ -296,7 +329,7 @@ class TiendaApplicationTests {
 	void test20() {
 		var listProds = prodRepo.findAll();
 		listProds.stream()
-				.filter(p-> p.getNombre().contains("Portátil"))
+				.filter(p-> p.getNombre().matches("Port[a|á]til"))
 				.forEach(System.out::println);
 	}
 	
@@ -383,12 +416,12 @@ class TiendaApplicationTests {
 	 * El listado debe mostrarse en formato tabla. Para ello, procesa las longitudes máximas de los diferentes campos a presentar y compensa mediante la inclusión de espacios en blanco.
 	 * La salida debe quedar tabulada como sigue:
 
-Producto                Precio             Fabricante
------------------------------------------------------
-GeForce GTX 1080 Xtreme|611.5500000000001 |Crucial
-Portátil Yoga 520      |452.79            |Lenovo
-Portátil Ideapd 320    |359.64000000000004|Lenovo
-Monitor 27 LED Full HD |199.25190000000003|Asus
+	Producto                Precio             Fabricante
+	-----------------------------------------------------
+	GeForce GTX 1080 Xtreme|611.5500000000001 |Crucial
+	Portátil Yoga 520      |452.79            |Lenovo
+	Portátil Ideapd 320    |359.64000000000004|Lenovo
+	Monitor 27 LED Full HD |199.25190000000003|Asus
 
 	 */
 	@Test
@@ -398,8 +431,8 @@ Monitor 27 LED Full HD |199.25190000000003|Asus
 				.filter(p -> p.getPrecio() >= 180)
 				.map(p -> p.getNombre() + "/" + p.getPrecio() + "/" + p.getFabricante().getNombre())
 				.toList();
-		System.out.println("Producto\tPrecio\tFabricante");
-		System.out.println("\n-----------------------------------------------------");
+		System.out.println("Producto                       Precio             Fabricante");
+		System.out.println("------------------------------------------------------------");
 		listProdsMayor180.forEach(System.out::println);
 	}
 	
@@ -594,7 +627,12 @@ Hewlett-Packard              2
 	@Test
 	void test38() {
 		var listFabs = fabRepo.findAll();
-		//TODO
+		System.out.println("     Fabricante     #Productos");
+		System.out.println("-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*");
+	listFabs.stream()
+				.map(f -> "\t" + f.getNombre() + "\t" + f.getProductos().size())
+				.forEach(System.out::println);
+
 	}
 	
 	/**

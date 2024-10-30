@@ -1,6 +1,4 @@
--- 9
-SELECT * FROM fabricante limit 2 offset 3;
-
+use tienda;
 /**
 	 * 1. Lista los nombres y los precios de todos los productos de la tabla producto
 	 */
@@ -36,7 +34,7 @@ select * from fabricante limit 5;
 /**
  * 9.Devuelve una lista con 2 fabricantes a partir del cuarto fabricante. El cuarto fabricante también se debe incluir en la respuesta.
  */
- select * from fabricante limit 3 offset 3;
+ select * from fabricante limit 2 offset 3;
 /**
 	 * 10. Lista el nombre y el precio del producto más barato
 	 */
@@ -69,7 +67,7 @@ select * from producto where precio > 200 and codigo_fabricante = 6;
 /**
 	 * 17. Lista todos los productos donde el código de fabricante sea 1, 3 o 5 utilizando un Set de codigos de fabricantes para filtrar.
 	 */
-select * from fabricante where codigo_fabricante = 1 or 3 or 5;
+select * from fabricante where codigo = 1 or 3 or 5;
 /**
 	 * 18. Lista el nombre y el precio de los productos en céntimos.
 	 */
@@ -81,7 +79,7 @@ select nombre from fabricante where nombre like 'S%';
 /**
 	 * 20. Devuelve una lista con los productos que contienen la cadena Portátil en el nombre.
 	 */
-select * from producto where nombre like '%Portátil%';
+select * from producto where nombre like '%Port_til%';
 /**
 	 * 21. Devuelve una lista con el nombre de todos los productos que contienen la cadena Monitor en el nombre y tienen un precio inferior a 215 €.
 	 */
@@ -123,11 +121,11 @@ select p.nombre, p.precio, f.nombre from producto p join fabricante f where prec
 /**
 	 * 29. Devuelve un listado donde sólo aparezcan aquellos fabricantes que no tienen ningún producto asociado.
 	 */
-select * from fabricante f left join producto p on f.id_fabricante = p.id_fabricante where p.id_producto is null;
+select * from fabricante f left join producto p on f.codigo= p.codigo where p.codigo is null;
 /**
  * 30. Calcula el número total de productos que hay en la tabla productos. Utiliza la api de stream.
  */
-select count(nombre_producto) from producto;
+select count(nombre) from producto;
 /**
 	 * 31. Calcula el número de fabricantes con productos, utilizando un stream de Productos.
 	 */
@@ -174,7 +172,7 @@ select f.nombre, min(p.precio) as precio_minimo, avg(p.precio) as precio_medio, 
 	 * 40. Muestra el precio máximo, precio mínimo, precio medio y el número total de productos de los fabricantes que tienen un precio medio superior a 200€.
 	 * No es necesario mostrar el nombre del fabricante, con el código del fabricante es suficiente.
 	 */
-select f.codigo, min(p.precio) as precio_minimo, avg(p.precio) as precio_medio, max(p.precio) as precio_maximo from producto p join fabricante f on p.codigo_fabricante = f.codigo having precio_medio > 200 group by f.codigo;
+/*select f.codigo, min(p.precio) as precio_minimo, avg(p.precio) as precio_medio, max(p.precio) as precio_maximo from producto p join fabricante f on p.codigo_fabricante = f.codigo having precio_medio > 200 group by f.codigo;*/
 /**
 	 * 41. Devuelve un listado con los nombres de los fabricantes que tienen 2 o más productos.
 	 */
@@ -183,7 +181,7 @@ select f.nombre, count(p.codigo) as numero_productos from producto p join fabric
 	 * 42. Devuelve un listado con los nombres de los fabricantes y el número de productos que tiene cada uno con un precio superior o igual a 220 €.
 	 * Ordenado de mayor a menor número de productos.
 	 */
-select f.nombre, count(select p.codigo from producto p join fabricante f on p.codigo_fabricante = f.codigo where p.precio>=220) as numero_productos from producto p join fabricante f on p.codigo_fabricante = f.codigo;
+/*select f.nombre, count(select p.codigo from producto p join fabricante f on p.codigo_fabricante = f.codigo where p.precio>=220) as numero_productos from producto p join fabricante f on p.codigo_fabricante = f.codigo;*/
 /**
 	 * 43.Devuelve un listado con los nombres de los fabricantes donde la suma del precio de todos sus productos es superior a 1000 €
 	 */
@@ -203,4 +201,4 @@ select p.nombre, f.nombre, max(p.precio)from producto p join fabricante f on p.c
 	 * 46. Devuelve un listado de todos los productos que tienen un precio mayor o igual a la media de todos los productos de su mismo fabricante.
 	 * Se ordenará por fabricante en orden alfabético ascendente y los productos de cada fabricante tendrán que estar ordenados por precio descendente.
 	 */
-select (select avg(p.precio) from producto p join fabricante f on f.codigo = p.codigo_fabricante) as media_fabricante, nombre from producto where precio >= media_fabricante;
+select (select avg(p.precio) from producto p join fabricante f on f.codigo = p.codigo_fabricante) as media_fabricante, nombre from producto having precio >= media_fabricante;
