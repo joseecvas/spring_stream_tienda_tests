@@ -539,9 +539,17 @@ Fabricante: Xiaomi
 	 */
 	@Test
 	void test28() {
-		var listprods = prodRepo.findAll();
-		listprods.stream()
-				.collect(groupingBy(p -> p.getFabricante().getNombre()));
+		var listfabs = fabRepo.findAll();
+		/*var mapProdsFabs = listprods.stream()
+				.collect(groupingBy(p -> p.getFabricante().getNombre()));*/
+		listfabs.stream()
+						.map(f -> "Fabricante: " + f.getNombre() + "\n\n"
+						+ "\tProductos:\n\t" + f.getProductos()
+										.stream()
+												.map(p -> p.getNombre() + "\n")
+												.collect(joining()))
+				.forEach(System.out::println);
+
 	}
 	
 	/**
