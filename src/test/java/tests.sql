@@ -97,7 +97,7 @@ select p.nombre, p.precio, f.nombre from producto as p join fabricante as f orde
 /**
 	 * 24. Devuelve el nombre del producto, su precio y el nombre de su fabricante, del producto más caro.
 	 */
-select p.nombre, max(p.precio), f.nombre from producto as p join fabricante as f;
+select p.nombre, max(p.precio), f.nombre from producto p join fabricante f on p.codigo_fabricante = f.codigo;
 /**
 	 * 25. Devuelve una lista de todos los productos del fabricante Crucial que tengan un precio mayor que 200€.
 	 */
@@ -105,14 +105,14 @@ select * from producto where precio > 200;
 /**
  * 26. Devuelve un listado con todos los productos de los fabricantes Asus, Hewlett-Packard y Seagate
  */
- select * from producto join fabricante where fabricante.nombre like 'Asus' or 'Hewlett-Packard' or 'Seagate';
+ select p.* from producto p join fabricante f on p.codigo_fabricante = f.codigo where f.nombre in ('Asus', 'Hewlett-Packard', 'Seagate');
 /**
  * 27. Devuelve un listado con el nombre de producto, precio y nombre de fabricante, de todos los productos que tengan un precio mayor o igual a 180€.
  * Ordene el resultado en primer lugar por el precio (en orden descendente) y en segundo lugar por el nombre.
  * El listado debe mostrarse en formato tabla. Para ello, procesa las longitudes máximas de los diferentes campos a presentar y compensa mediante la inclusión de espacios en blanco.
  * La salida debe quedar tabulada como sigue:
  */
-select p.nombre, p.precio, f.nombre from producto p join fabricante f where precio >= 180 order by precio desc, nombre;
+select p.nombre, p.precio, f.nombre from producto p join fabricante f on p.codigo_fabricante = f.codigo where p.precio >= 180 order by precio desc, p.nombre asc;
 /**
 	 * 28. Devuelve un listado de los nombres fabricantes que existen en la base de datos, junto con los nombres productos que tiene cada uno de ellos.
 	 * El listado deberá mostrar también aquellos fabricantes que no tienen productos asociados.
