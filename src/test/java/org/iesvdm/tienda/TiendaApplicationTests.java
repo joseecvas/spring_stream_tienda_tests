@@ -540,8 +540,6 @@ Fabricante: Xiaomi
 	@Test
 	void test28() {
 		var listfabs = fabRepo.findAll();
-		/*var mapProdsFabs = listprods.stream()
-				.collect(groupingBy(p -> p.getFabricante().getNombre()));*/
 		listfabs.stream()
 						.map(f -> "Fabricante: " + f.getNombre() + "\n\n"
 						+ "\tProductos:\n\t" + f.getProductos()
