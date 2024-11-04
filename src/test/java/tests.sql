@@ -168,7 +168,8 @@ select f.nombre, min(p.precio) as precio_minimo, avg(p.precio) as precio_medio, 
 	 * 40. Muestra el precio máximo, precio mínimo, precio medio y el número total de productos de los fabricantes que tienen un precio medio superior a 200€.
 	 * No es necesario mostrar el nombre del fabricante, con el código del fabricante es suficiente.
 	 */
-    select f.codigo as codigo_fabricante, max(p.precio) as precio_maximo, min(p.precio) as precio_minimo, avg(p.precio) as precio_medio, count(p.codigo) as total_productos from producto p join fabricante f on p.codigo_fabricante = f.codigo group by f.codigo having precio_medio>200 ;
+    select f.codigo as codigo_fabricante, max(p.precio) as precio_maximo, min(p.precio) as precio_minimo, avg(p.prec
+                                                                                                              io) as precio_medio, count(p.codigo) as total_productos from producto p join fabricante f on p.codigo_fabricante = f.codigo group by f.codigo having precio_medio>200 ;
 /**
 	 * 41. Devuelve un listado con los nombres de los fabricantes que tienen 2 o más productos.
 	 */
