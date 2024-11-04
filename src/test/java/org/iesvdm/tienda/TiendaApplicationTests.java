@@ -1,6 +1,5 @@
 package org.iesvdm.tienda;
 
-import jakarta.persistence.EntityManager;
 import org.iesvdm.tienda.modelo.Fabricante;
 import org.iesvdm.tienda.modelo.Producto;
 import org.iesvdm.tienda.repository.FabricanteRepository;
@@ -59,6 +58,7 @@ class TiendaApplicationTests {
 		Assertions.assertEquals(listNomPrec.size(), 11);
 		Assertions.assertEquals("Disco duro SATA3 1TB", listNomPrec.get(0).nombre);
 		Assertions.assertEquals(86.99, listNomPrec.get(0).precio);
+		listNomPrec.forEach(System.out::println);
 	}
 
 	/**
@@ -207,8 +207,9 @@ class TiendaApplicationTests {
 		var result = listProds.stream()
 				.sorted(comparing(Producto::getPrecio))
 				.map(p->p.getNombre()+p.getPrecio())
-				.findFirst();
-		Assertions.assertTrue(result.orElse("").contains("59.99"));
+				.findFirst()
+				.orElse(null);
+		Assertions.assertTrue(result.contains("59.99"));
 	}
 	
 	/**
@@ -383,6 +384,7 @@ class TiendaApplicationTests {
 	 * 22. Lista el nombre y el precio de todos los productos que tengan un precio mayor o igual a 180€. 
 	 * Ordene el resultado en primer lugar por el precio (en orden descendente) y en segundo lugar por el nombre (en orden ascendente).
 	 */
+	@Test
 	void test22() {
 		var listProds = prodRepo.findAll();
 		var result = listProds.stream()
@@ -392,8 +394,6 @@ class TiendaApplicationTests {
 				.map(p-> p.getNombre() + p.getPrecio())
 				.toList();
 		Assertions.assertEquals(7, result.size());
-		/*Assertions.assertTrue(result.get(0).getPrecio().contains("Portátil"));
-		Assertions.assertTrue(result.get(1).getNombre().contains("Portátil"));*/
 	}
 	
 	/**
@@ -423,8 +423,8 @@ class TiendaApplicationTests {
 				.sorted(comparing(Producto::getPrecio,reverseOrder()))
 				.findFirst()
 				.orElse(null);
-
 	}
+
 	
 	/**
 	 * 25. Devuelve una lista de todos los productos del fabricante Crucial que tengan un precio mayor que 200€.
@@ -475,12 +475,14 @@ class TiendaApplicationTests {
 	void test27() {
 		var listProds = prodRepo.findAll();
 		var listProdsMayor180 = listProds.stream()
+				.sorted(comparing(Producto::getPrecio, reverseOrder()).thenComparing(Producto::getNombre))
 				.filter(p -> p.getPrecio() >= 180)
 				.map(p -> p.getNombre() + "/" + p.getPrecio() + "/" + p.getFabricante().getNombre())
 				.toList();
 		System.out.println("Producto                       Precio             Fabricante");
 		System.out.println("------------------------------------------------------------");
 		listProdsMayor180.forEach(System.out::println);
+		Assertions.assertEquals(7, listProdsMayor180.size());
 	}
 	
 	/**
@@ -547,7 +549,6 @@ Fabricante: Xiaomi
 												.map(p -> p.getNombre() + "\n")
 												.collect(joining()))
 				.forEach(System.out::println);
-
 	}
 	
 	/**
@@ -556,11 +557,14 @@ Fabricante: Xiaomi
 	@Test
 	void test29() {
 		var listFabs = fabRepo.findAll();
-		listFabs.stream()
+		var result = listFabs.stream()
 				.filter(f -> f.getProductos().isEmpty())
-				.forEach(System.out::println);
+				.toList();
+		Assertions.assertEquals(2, result.size());
+		Assertions.assertEquals(0, result.get(0).getProductos().size());
+		Assertions.assertEquals(0, result.get(1).getProductos().size());
 	}
-	
+
 	/**
 	 * 30. Calcula el número total de productos que hay en la tabla productos. Utiliza la api de stream.
 	 */
@@ -569,7 +573,7 @@ Fabricante: Xiaomi
 		var listProds = prodRepo.findAll();
 		var nProductos = listProds.stream()
 				.collect(counting());
-		System.out.println(nProductos);
+		Assertions.assertEquals(11, nProductos);
 	}
 
 	
@@ -579,11 +583,11 @@ Fabricante: Xiaomi
 	@Test
 	void test31() {
 		var listProds = prodRepo.findAll();
-		var fabricantesProd = listProds.stream()
+		var nfabricantesProd = listProds.stream()
 				.map(Producto::getFabricante)
 				.distinct()
 				.count();
-		System.out.println(fabricantesProd);
+		Assertions.assertEquals(7, nfabricantesProd);
 	}
 	
 	/**
@@ -594,8 +598,9 @@ Fabricante: Xiaomi
 		var listProds = prodRepo.findAll();
 		var mediaPrecio = listProds.stream()
 				.mapToDouble(Producto::getPrecio)
-				.average();
-		System.out.println(mediaPrecio);
+				.average()
+				.orElse(0); //La media de los productos es 271.7236363636364
+		Assertions.assertEquals(271.7236363636364, mediaPrecio);
 	}
 	
 	/**
@@ -604,11 +609,11 @@ Fabricante: Xiaomi
 	@Test
 	void test33() {
 		var listProds = prodRepo.findAll();
-		listProds.stream()
+		var result = listProds.stream()
 				.min(comparing(Producto::getPrecio))
-				.ifPresentOrElse((System.out::println), () -> System.out.println("Cadena vacía"));
+				.orElse(null);
+		Assertions.assertEquals("Impresora HP Deskjet 3720", result.getNombre());
 	}
-	
 	/**
 	 * 34. Calcula la suma de los precios de todos los productos.
 	 */
@@ -617,8 +622,8 @@ Fabricante: Xiaomi
 		var listProds = prodRepo.findAll();
 		var sumaPrecio = listProds.stream()
 				.mapToDouble(Producto::getPrecio)
-				.sum();
-		System.out.println(sumaPrecio);
+				.sum(); // suma = 2988.96
+		Assertions.assertEquals(2988.96, sumaPrecio);
 	}
 	
 	/**
@@ -630,7 +635,7 @@ Fabricante: Xiaomi
 		var nAsus = listProds.stream()
 				.filter(p -> p.getFabricante().getNombre().equals("Asus"))
 				.count();
-		System.out.println(nAsus);
+		Assertions.assertEquals(2, nAsus);
 	}
 	
 	/**
@@ -642,8 +647,9 @@ Fabricante: Xiaomi
 		var mediaAsus = listProds.stream()
 				.filter(p -> p.getFabricante().getNombre().equals("Asus"))
 				.mapToDouble(Producto::getPrecio)
-				.average();
-		System.out.println(mediaAsus);
+				.average()
+				.orElse(0);
+		Assertions.assertEquals(223.995, mediaAsus);
 	}
 	
 	
@@ -654,7 +660,30 @@ Fabricante: Xiaomi
 	@Test
 	void test37() {
 		var listProds = prodRepo.findAll();
-		//TODO
+		Double[] resultados = listProds.stream()
+				.filter(producto -> "Crucial".equals(producto.getFabricante().getNombre()))
+				.map(Producto::getPrecio)
+				.reduce(new Double[]{Double.MIN_VALUE, Double.MAX_VALUE, 0.0, 0.0},
+						(acumulador, precio) -> {
+							acumulador[0] = Math.max(acumulador[0], precio);
+							acumulador[1] = Math.min(acumulador[1], precio);
+							acumulador[2] += precio;
+							acumulador[3] += 1;
+							return acumulador;
+						},
+						(acum1, acum2) -> {
+							acum1[0] = Math.max(acum1[0], acum2[0]);
+							acum1[1] = Math.min(acum1[1], acum2[1]);
+							acum1[2] += acum2[2];
+							acum1[3] += acum2[3];
+							return acum1;
+						}
+				);
+		resultados[2] = resultados[3] > 0 ? resultados[2] / resultados[3] : 0.0;
+		Assertions.assertEquals(755.0, resultados[0]);
+		Assertions.assertEquals(120.0, resultados[1]);
+		Assertions.assertEquals(437.5, resultados[2]);
+		Assertions.assertEquals(2.0, resultados[3]);
 	}
 	
 	/**
@@ -680,12 +709,17 @@ Hewlett-Packard              2
 	@Test
 	void test38() {
 		var listFabs = fabRepo.findAll();
-		System.out.println("     Fabricante     #Productos");
-		System.out.println("-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*");
-	listFabs.stream()
-				.map(f -> "\t" + f.getNombre() + "\t" + f.getProductos().size())
-				.forEach(System.out::println);
-
+		record NomProds (String nombre, int productos){}
+	var result = listFabs.stream()
+				.map(f -> new NomProds(f.getNombre(), f.getProductos().size()))
+			.toList();
+		String encabezado = String.format("%20s %20s%n", "Fabricante", "Productos");
+		encabezado+= "*-".repeat(encabezado.length()/2);
+		System.out.println(encabezado);
+		for (NomProds tupla : result){
+			System.out.println(String.format("%20s %20d", tupla.nombre(), tupla.productos()));
+		}
+		Assertions.assertEquals(9, result.size());
 	}
 	
 	/**
@@ -696,7 +730,7 @@ Hewlett-Packard              2
 	@Test
 	void test39() {
 		var listFabs = fabRepo.findAll();
-		//TODO
+ 		//TODO
 	}
 	
 	/**
